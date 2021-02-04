@@ -34,20 +34,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.length == 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //有权限
-
-            }else{
-                //没有权限
-                //根据交互去处理
-
-            }
-        }
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == PERMISSION_REQUEST_CODE) {
+//            if (grantResults.length == 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                //有权限
+//
+//            }else{
+//                //没有权限
+//                //根据交互去处理
+//
+//            }
+//        }
+//    }
 
     private void initListener() {
         pickImage.setOnClickListener(this);
