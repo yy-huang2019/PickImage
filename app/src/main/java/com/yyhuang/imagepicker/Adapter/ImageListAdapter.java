@@ -5,11 +5,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.yyhuang.imagepicker.R;
 import com.yyhuang.imagepicker.domain.ImageItem;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +22,13 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Inne
     private List<ImageItem> mImageItems = new ArrayList<>();
     //选中的图片
     private List<ImageItem> mSelectedItem = new ArrayList<>();
+    private OnItemSelectedChangedListener mOnItemSelectedChangedListener = null;
+
+    public static int getMaxSelectedCount() {
+        return MAX_SELECTED_COUNT;
+    }
+
+    private final static int MAX_SELECTED_COUNT = 9;
 
     @NonNull
     @Override
@@ -26,7 +37,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Inne
         View itemView = View.inflate(parent.getContext(), R.layout.item_image, null);
         //设置图片长宽
         Point screenSize = SizeUtils.getScreenSize(itemView.getContext());
-        RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(screenSize.x/3,screenSize.y/3);
+        RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(screenSize.x / 3, screenSize.y / 3);
         itemView.setLayoutParams(layoutParams);
         return new InnerHolder(itemView);
 
@@ -53,7 +64,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Inne
             image_cover.setVisibility(View.VISIBLE);
             checkBox.setButtonDrawable(itemView.getContext().getDrawable(R.mipmap.image1));
 
-        }else{
+        } else {
             //选中了则取消选择
             mSelectedItem.remove(imageItem);
             //修改UI
@@ -75,13 +86,26 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Inne
                     checkBox.setChecked(true);
                     image_cover.setVisibility(View.GONE);
                     checkBox.setButtonDrawable(itemView.getContext().getDrawable(R.mipmap.image3));
-                }else{
+                } else {
+                    //选中的图片大于9张时给个提示
+                    if(mSelectedItem.size()>=MAX_SELECTED_COUNT){
+                        Toast makeText = Toast.makeText(checkBox.getContext(), null, Toast.LENGTH_SHORT);
+                        makeText.setText("最多可以选择的图片是"+MAX_SELECTED_COUNT+"张");
+                        makeText.show();
+                        return;
+                    }
+
                     //没有选中，则选择该图片
                     mSelectedItem.add(imageItem);
                     //修改UI
                     checkBox.setChecked(false);
                     image_cover.setVisibility(View.VISIBLE);
                     checkBox.setButtonDrawable(itemView.getContext().getDrawable(R.mipmap.image1));
+                }
+
+                //事件监听选择条目是否为空
+                if (mOnItemSelectedChangedListener != null) {
+                    mOnItemSelectedChangedListener.onItemSelectedChanged(mSelectedItem);
                 }
             }
         });
@@ -104,4 +128,17 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Inne
             super(itemView);
         }
     }
+
+
+    //选择条目事件的监听
+    //暴露接口(实现该接口方法)
+    public interface OnItemSelectedChangedListener {
+        void onItemSelectedChanged(List<ImageItem> selectedItems);
+    }
+
+    //实现方法
+    public void setOnItemSelectedChanged(OnItemSelectedChangedListener listener) {
+        this.mOnItemSelectedChangedListener = listener;
+    }
+
 }

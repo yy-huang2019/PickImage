@@ -1,13 +1,10 @@
 package com.yyhuang.imagepicker;
 
-import android.app.Activity;
-import android.content.ContentResolver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.View;
-
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,18 +13,17 @@ import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.yyhuang.imagepicker.Adapter.ImageListAdapter;
 import com.yyhuang.imagepicker.domain.ImageItem;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class PickerActivity extends AppCompatActivity {
+public class PickerActivity extends AppCompatActivity implements ImageListAdapter.OnItemSelectedChangedListener {
     private static final String TAG = "PickerActivity";
     private static final int LOADER_ID = 1;
     private List<ImageItem> mImageItems = new ArrayList<>();
     private ImageListAdapter imageListAdapter;
+    private TextView finish_tv;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,6 +31,7 @@ public class PickerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_picker);
         initLoadManage();
         initView();
+        initEvent();
 
 //        ContentResolver resolver = getContentResolver();
 //        Uri ImageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
@@ -51,9 +48,24 @@ public class PickerActivity extends AppCompatActivity {
 
     }
 
+    private void initEvent() {
+        imageListAdapter.setOnItemSelectedChanged(this);
+    }
+
+    @Override
+    public void onItemSelectedChanged(List<ImageItem> selectedItems) {
+        //所选择的数据发生变化
+        if (selectedItems.size() <= imageListAdapter.getMaxSelectedCount()) {
+            finish_tv.setText("(" + selectedItems.size() + "/" + imageListAdapter.getMaxSelectedCount() + ")完成");
+        }else {
+            return;
+        }
+    }
+
     private void initView() {
         //找到控件
         RecyclerView listView = this.findViewById(R.id.result_list);
+        finish_tv = this.findViewById(R.id.finish_tv);
         //设置布局管理器
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         listView.setLayoutManager(gridLayoutManager);
@@ -118,4 +130,6 @@ public class PickerActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }
