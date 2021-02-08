@@ -23,12 +23,20 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Inne
     //选中的图片
     private List<ImageItem> mSelectedItem = new ArrayList<>();
     private OnItemSelectedChangedListener mOnItemSelectedChangedListener = null;
+    private final static int MAX_SELECTED_COUNT = 9;
+
+    public List<ImageItem> getmSelectedItem() {
+        return mSelectedItem;
+    }
+
+    public void setmSelectedItem(List<ImageItem> mSelectedItem) {
+        this.mSelectedItem = mSelectedItem;
+    }
 
     public static int getMaxSelectedCount() {
         return MAX_SELECTED_COUNT;
     }
 
-    private final static int MAX_SELECTED_COUNT = 9;
 
     @NonNull
     @Override
@@ -121,6 +129,10 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Inne
         mImageItems.addAll(ImageItems);
         //跟新UI
         notifyDataSetChanged();
+    }
+
+    public void release() {
+        mImageItems.clear();
     }
 
     public class InnerHolder extends RecyclerView.ViewHolder {

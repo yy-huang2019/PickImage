@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +25,8 @@ public class PickerActivity extends AppCompatActivity implements ImageListAdapte
     private List<ImageItem> mImageItems = new ArrayList<>();
     private ImageListAdapter imageListAdapter;
     private TextView finish_tv;
+    private final static int MAX_SELECTED_COUNT = 9;
+    private PickerConfig pickerConfig;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,24 +35,34 @@ public class PickerActivity extends AppCompatActivity implements ImageListAdapte
         initLoadManage();
         initView();
         initEvent();
+        initConfig();
 
-//        ContentResolver resolver = getContentResolver();
-//        Uri ImageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-//        Cursor query = resolver.query(ImageUri,null,null,null,null);
-//        String[] columnNames = query.getColumnNames();
-//        while (query.moveToNext()) {
-//            Log.d(TAG, "==============");
-//            for (String columnName : columnNames) {
-//                Log.d(TAG, columnName + "===" + query.getString(query.getColumnIndex(columnName)));
-//            }
-//            Log.d(TAG, "==============");
-//        }
-//        query.close();
+    }
 
+    private void initConfig() {
+        pickerConfig = PickerConfig.getInstance();
+        pickerConfig.setMaxSelectedCount(MAX_SELECTED_COUNT);
     }
 
     private void initEvent() {
         imageListAdapter.setOnItemSelectedChanged(this);
+        //点击完成将图片加载到另外一个界面
+        finish_tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //获取到所选择的界面
+                List<ImageItem> result = new ArrayList<>();
+                result.addAll(imageListAdapter.getmSelectedItem());
+                imageListAdapter.release();
+                //通知到其他地方
+                PickerConfig.OnImageSelectedFinishListener imageSelectedFinishListener = pickerConfig.getImageSelectedFinishListener();
+                if (imageSelectedFinishListener != null) {
+                    imageSelectedFinishListener.onSelected(result);
+                }
+                //结束界面
+                finish();
+            }
+        });
     }
 
     @Override
@@ -57,8 +70,6 @@ public class PickerActivity extends AppCompatActivity implements ImageListAdapte
         //所选择的数据发生变化
         if (selectedItems.size() <= imageListAdapter.getMaxSelectedCount()) {
             finish_tv.setText("(" + selectedItems.size() + "/" + imageListAdapter.getMaxSelectedCount() + ")完成");
-        }else {
-            return;
         }
     }
 
@@ -130,6 +141,4 @@ public class PickerActivity extends AppCompatActivity implements ImageListAdapte
             }
         });
     }
-
-
 }
